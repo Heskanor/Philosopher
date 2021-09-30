@@ -14,7 +14,14 @@ typedef struct ph_s{
 	char *forks;
 }ph_t;
 
+typedef struct filo_s{
+	int dead; //Dead or not
+	int damaged; // low HP
+	int n_meals;// [number_of_times_eated
+}filo_t;
+
 ph_t g_ph;
+filo_t g_filo;
 
 int		ft_atoi(const char *str)
 {
@@ -76,12 +83,14 @@ int inputs_checker(char **inputs)
 
 	i = 1;
 	input = 1;
-	while (i < 6)
-	{
-		input = is_degit(inputs[i]);
+	while (i < 6 && is_degit(inputs[i]))
 		i++;
-	}
+	if (i != 7 || inputs_checker(inputs))
+	{
+		
 	return (input);
+	}
+	
 }
 int initializer(char **inputs)
 {
