@@ -76,10 +76,10 @@ void* routine(void *meals) {
     return meals;
 
 }
+
 int inputs_checker(char **inputs)
 {
 	int i;
-	int input;
 
 	i = 1;
 	while (i < 6 && is_degit(inputs[i]))
@@ -88,6 +88,7 @@ int inputs_checker(char **inputs)
 		return (1);
 	return (0);
 }
+
 int initializer(char **inputs)
 {
 	int forks;
