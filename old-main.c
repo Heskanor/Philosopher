@@ -69,7 +69,6 @@ int is_degit(char*s)
 void* routine(void *meals) {
     int meal;
 	meal = *(int*)meals;
-    //if meal <
 	meal++;
     printf("Local sum: %d\n", meal);
     *(int*)meals = meal;
