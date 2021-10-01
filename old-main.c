@@ -76,22 +76,19 @@ void* routine(void *meals) {
     return meals;
 
 }
+
 int inputs_checker(char **inputs)
 {
 	int i;
-	int input;
 
 	i = 1;
-	input = 1;
 	while (i < 6 && is_degit(inputs[i]))
 		i++;
-	if (i != 7 || inputs_checker(inputs))
-	{
-		
-	return (input);
-	}
-	
+	if (i != 6 || inputs_checker(inputs))
+		return (1);
+	return (initializer(inputs));
 }
+
 int initializer(char **inputs)
 {
 	int forks;
@@ -132,18 +129,12 @@ int main(int argc, char **argv)
 	int *meals;
 	int i;
 
-	if (argc == 6)
+	if (argc == 6 && !inputs_checker(argv) && !initializer(argv))
 	{
-		checker = inputs_checker(argv);
-		if (checker == 1 && !initializer(argv))
-		{
-			printf("Perfect args !\n");
-			//ft_thread(g_ph);
-			printf("%d = number_of_philosophers\n%d = time_to_die\n%d = time_to_eat\n%d = time_to_sleep\n%d = number_of_times_each_philosopher_must_eat\n",
-			g_ph.n_philo, g_ph.t_die,g_ph.t_eat,g_ph.t_sleep,g_ph.n_meals);
-		}else
-		printf("You fucked 1xD\n");
-		
+		printf("Perfect args !\n");
+		//ft_thread(g_ph);
+		printf("%d = number_of_philosophers\n%d = time_to_die\n%d = time_to_eat\n%d = time_to_sleep\n%d = number_of_times_each_philosopher_must_eat\n",
+		g_ph.n_philo, g_ph.t_die,g_ph.t_eat,g_ph.t_sleep,g_ph.n_meals);
 	}
 	else
 		printf("You fucked xD\n");
