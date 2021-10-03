@@ -79,9 +79,10 @@ void* routine(void *arg)
 	int index = *(int*)arg;
 	
 	int time;
-	time = gettimeofday(&start,NULL);
-	while (g_philo[index].n_meals < g_ph.n_meals)
+	
+	while (g_philo[index].n_meals < g_ph.n_meals && stop.tv_sec < 10000)
 	{
+		time = gettimeofday(&start,NULL);
 		pthread_mutex_lock(&forks[index]);
 
 		printf("10 ms - Philosopher [%d] has taken a fork\n", index);
@@ -95,6 +96,7 @@ void* routine(void *arg)
 		printf("10 ms - Philosopher [%d] is eating\n", index);
 		usleep(10);
 		pthread_mutex_unlock(&forks[index]);
+		time = gettimeofday(&stop,NULL);
 	}
 
 	if (index == (g_ph.n_philo - 1))
