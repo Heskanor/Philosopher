@@ -5,6 +5,7 @@
 #include <pthread.h>
 
 pthread_mutex_t g_mutex;
+pthread_mutex_t *mutex;
 typedef struct ph_s{
 	int n_philo; //number_of_philosophers
 	int t_die; //time_to_die
@@ -68,15 +69,20 @@ int is_degit(char*s)
 	return (1);
 }
 
-void* routine(void *meals)
+void* routine(void *arg)
 {
-    int meal;
-
-	meal = *(int*)meals;
-	meal++;
-    printf("Local sum: %d\n", meal);
-    *(int*)meals = meal;
-    return meals;
+	int index = *(int*)arg;
+	pthread_mutex_lock(&mutex[index]);
+	
+	printf("eat\n");
+	usleep(10);
+	pthread_mutex_unlock(&mutex[index]);
+	
+	printf("sleap\n");
+	usleep(10);
+	printf("think\n");
+	usleep(10);
+    return (1);
 }
 
 int inputs_checker(char **inputs)
@@ -90,7 +96,17 @@ int inputs_checker(char **inputs)
 		return (1);
 	return (0);
 }
+void mutex_constractor(pthread_mutex_t *mutex)
+{
+	int i;
 
+	i = 0;
+	while (i < g_ph.n_philo)
+	{
+		pthread_mutex_init(&mutex[i], NULL);
+		i++;
+	}
+}
 int initializer(char **inputs)
 {
 	int forks;
@@ -106,8 +122,9 @@ int initializer(char **inputs)
 	if (g_ph.n_philo > 1)
 		forks = g_ph.n_philo;
 	g_ph.forks = malloc(sizeof(char) * forks*2);
+	pthread_mutex_init(&mutex[i], NULL);
 	//g_ph.n_meals = malloc(sizeof(int) * g_ph.n_philo);
-	g_philo = malloc(sizeof(philo_t)*g_ph.)
+	g_philo = malloc(sizeof(philo_t)*g_ph.);
 	memset( g_ph.forks, 1, forks*2 );
 	return 0;
 }
@@ -115,16 +132,24 @@ int initializer(char **inputs)
 void ft_thread(ph_t ph)
 {
 	int i;
+	int j;
 	pthread_t *philo;
 
 	i = 0;
+	j = 0;
 	philo = (pthread_t *)malloc(sizeof(pthread_t)*g_ph.n_philo);
 	while(i < g_ph.n_philo)
 	{
-		if (pthread_create(&philo[i], NULL, &routine, NULL) != 0){
+		if (pthread_create(&philo[i], NULL, &routine, &i) != 0){
 			perror("Failed to create thread");
 		}
 	}
+	for (i = 0; i < 2; i++) {
+        int* r;
+        if (pthread_join(philo[i], NULL) != 0) {
+            perror("Failed to join thread");
+        }
+    }
 }
 
 int main(int argc, char **argv)
