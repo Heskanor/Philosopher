@@ -14,15 +14,15 @@ typedef struct ph_s{
 	char *forks;
 }ph_t;
 
-typedef struct filo_s
+typedef struct philo_s
 {
 	int dead;//    Dead or not
 	int damaged;// HP level
 	int n_meals;// [number_of_times_eated
-}filo_t;
+}philo_t;
 
 ph_t g_ph;
-filo_t g_filo;
+philo_t *g_philo;
 
 int		ft_atoi(const char *str)
 {
@@ -107,23 +107,25 @@ int initializer(char **inputs)
 		forks = g_ph.n_philo;
 	g_ph.forks = malloc(sizeof(char) * forks*2);
 	//g_ph.n_meals = malloc(sizeof(int) * g_ph.n_philo);
+	g_philo = malloc(sizeof(philo_t)*g_ph.)
 	memset( g_ph.forks, 1, forks*2 );
 	return 0;
 }
 
-/*void ft_thread(ph_t ph)
+void ft_thread(ph_t ph)
 {
 	int i;
 	pthread_t *philo;
+
 	i = 0;
 	philo = (pthread_t *)malloc(sizeof(pthread_t)*g_ph.n_philo);
 	while(i < g_ph.n_philo)
 	{
-		if (pthread_create(&philo[i], NULL, &routine, NULL) != 0) {
+		if (pthread_create(&philo[i], NULL, &routine, NULL) != 0){
 			perror("Failed to create thread");
 		}
 	}
-}*/
+}
 
 int main(int argc, char **argv)
 {
@@ -136,7 +138,7 @@ int main(int argc, char **argv)
 		printf("Perfect args !\n");
 		printf("%d = number_of_philosophers\n%d = time_to_die\n%d = time_to_eat\n%d = time_to_sleep\n%d = number_of_times_each_philosopher_must_eat\n",
 		g_ph.n_philo, g_ph.t_die,g_ph.t_eat,g_ph.t_sleep,g_ph.n_meals);
-		//ft_thread(g_ph);
+		ft_thread(g_ph);
 	}
 	else
 		printf("You fucked xD\n");
@@ -148,20 +150,20 @@ int main(int argc, char **argv)
 }
 
 /*
-protect inputs from negative values -> make values checker [done!]
-philos sleep -> use sleep
-philos think -> use sleep
-lock mutex
-search forks
-use forks
-philos eats
-drop forks
-unlock mutex
-print actions
-calc time between now and last eat
-eat when u need to eat
-philos dies after no eating
-stop philo after getting satisfied
-when the philo die stop all
-when they all satisfied eating stop all
+* protect inputs from negative values -> make values checker [done!]
+* philos sleep -> use sleep
+* philos think -> use sleep
+* lock mutex
+* search forks
+* use forks
+* philos eats
+* drop forks
+* unlock mutex
+* print actions
+* calc time between now and last eat
+* eat when u need to eat
+* philos dies after no eating
+* stop philo after getting satisfied
+* when the philo die stop all
+* when they all satisfied eating stop all
 */
