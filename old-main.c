@@ -73,6 +73,7 @@ void* routine(void *arg)
 	int index = *(int*)arg;
 
 	pthread_mutex_lock(&forks[index]);
+
 	printf("10 ms - Philosopher [%d] has taken a fork\n", index);
 
 	if (index == (g_ph.n_philo - 1))
@@ -132,9 +133,9 @@ int initializer(char **inputs)
 	/*if (g_ph.n_philo > 1)
 		forks = g_ph.n_philo;*/
 	//g_ph.forks = malloc(sizeof(char) * forks*2);
-	//g_ph.n_meals = malloc(sizeof(int) * g_ph.n_philo);
+	forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo);
 	g_philo = malloc(sizeof(philo_t)*g_ph.n_philo);
-
+	mutex_constractor(forks);
 	return 0;
 }
 
@@ -147,18 +148,23 @@ void ft_thread(ph_t ph)
 	i = 0;
 	j = 0;
 	th = (pthread_t *)malloc(sizeof(pthread_t)*g_ph.n_philo);
+	
 	while(i < g_ph.n_philo)
 	{
+		
 		if (pthread_create(&th[i], NULL, &routine, &i) != 0){
 			perror("Failed to create thread");
 		}
+		i++;
 	}
-	while(i < g_ph.n_philo)
+	while(j < g_ph.n_philo)
 	{
-		if (pthread_join(th[i], NULL) != 0) {
+		if (pthread_join(th[j], NULL) != 0) {
             perror("Failed to join thread");
         }
+		j++;
 	}
+	
 }
 
 int main(int argc, char **argv)
@@ -170,7 +176,7 @@ int main(int argc, char **argv)
 	if (argc == 6 && !inputs_checker(argv) && !initializer(argv))
 	{
 		printf("Perfect args !\n");
-		printf("%d = number_of_philosophers\n%d = time_to_die\n%d = time_to_eat\n%d = time_to_sleep\n%d = number_of_times_each_philosopher_must_eat\n",
+		printf("%d = number_of_philosophers\n%d = time_to_die\n%d = time_to_eat\n%d = time_to_sleep\n%d = number_of_times_each_philosopher_must_eat\n\n\n\n",
 		g_ph.n_philo, g_ph.t_die,g_ph.t_eat,g_ph.t_sleep,g_ph.n_meals);
 		ft_thread(g_ph);
 	}
