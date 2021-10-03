@@ -79,8 +79,8 @@ void* routine(void *arg)
 	int index = *(int*)arg;
 	
 	int time;
-	
-	while (g_philo[index].n_meals < g_ph.n_meals && stop.tv_sec < 10000)
+	g_philo[index].n_meals = 0;
+	while (g_philo[index].n_meals < g_ph.n_meals && stop.tv_sec < 1)
 	{
 		time = gettimeofday(&start,NULL);
 		pthread_mutex_lock(&forks[index]);
@@ -97,8 +97,9 @@ void* routine(void *arg)
 		usleep(10);
 		pthread_mutex_unlock(&forks[index]);
 		time = gettimeofday(&stop,NULL);
+		g_philo[index].n_meals++;
 	}
-
+	printf("\nchbe3\n");
 	if (index == (g_ph.n_philo - 1))
 		pthread_mutex_unlock(&forks[0]);
 	else
