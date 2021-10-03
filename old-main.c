@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include <sys/time.h>
 
 
 pthread_mutex_t *forks;
@@ -14,6 +15,11 @@ typedef struct ph_s{
 	int n_meals;//[number_of_times_each_philosopher_must_eat]
 }ph_t;
 
+/*typedef struct    timeval_s{
+  time_t        tv_sec ;   //used for seconds
+  suseconds_t       tv_usec ;   //used for microseconds
+}timeval_t;*/
+struct timeval stop, start;
 typedef struct philo_s
 {
 	int dead;//    Dead or not
@@ -71,20 +77,25 @@ int is_degit(char*s)
 void* routine(void *arg)
 {
 	int index = *(int*)arg;
+	
+	int time;
+	time = gettimeofday(&start,NULL);
+	while (g_philo[index].n_meals < g_ph.n_meals)
+	{
+		pthread_mutex_lock(&forks[index]);
 
-	pthread_mutex_lock(&forks[index]);
+		printf("10 ms - Philosopher [%d] has taken a fork\n", index);
 
-	printf("10 ms - Philosopher [%d] has taken a fork\n", index);
+		if (index == (g_ph.n_philo - 1))
+			pthread_mutex_lock(&forks[0]);
+		else
+			pthread_mutex_lock(&forks[index + 1]);
 
-	if (index == (g_ph.n_philo - 1))
-		pthread_mutex_lock(&forks[0]);
-	else
-		pthread_mutex_lock(&forks[index + 1]);
-
-	printf("10 ms - Philosopher [%d] has taken a fork\n", index);
-	printf("10 ms - Philosopher [%d] is eating\n", index);
-	usleep(10);
-	pthread_mutex_unlock(&forks[index]);
+		printf("10 ms - Philosopher [%d] has taken a fork\n", index);
+		printf("10 ms - Philosopher [%d] is eating\n", index);
+		usleep(10);
+		pthread_mutex_unlock(&forks[index]);
+	}
 
 	if (index == (g_ph.n_philo - 1))
 		pthread_mutex_unlock(&forks[0]);
@@ -207,4 +218,11 @@ int main(int argc, char **argv)
 * when the philo die stop all
 * when they all satisfied eating stop all
 *gcc -g -pthread old-main.c && ./a.out 5 1000 60 60 5
+#include <sys/time.h>
+
+struct timeval stop, start;
+gettimeofday(&start, NULL);
+//do stuff
+gettimeofday(&stop, NULL);
+printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
 */
