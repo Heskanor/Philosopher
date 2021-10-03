@@ -82,7 +82,7 @@ void* routine(void *arg)
 		pthread_mutex_lock(&forks[index + 1]);
 
 	printf("10 ms - Philosopher [%d] has taken a fork\n", index);
-	printf("eat\n");
+	printf("10 ms - Philosopher [%d] is eating\n", index);
 	usleep(10);
 	pthread_mutex_unlock(&forks[index]);
 
@@ -90,12 +90,12 @@ void* routine(void *arg)
 		pthread_mutex_unlock(&forks[0]);
 	else
 		pthread_mutex_unlock(&forks[index + 1]);
-
-	printf("sleap\n");
+	printf("10 ms - Philosopher [%d] is sleeping\n", index);
 	usleep(10);
-	printf("think\n");
+	printf("10 ms - Philosopher [%d] is thinking\n", index);
 	usleep(10);
 	return (NULL);
+	//died
 }
 
 int inputs_checker(char **inputs)
@@ -206,4 +206,5 @@ int main(int argc, char **argv)
 * stop philo after getting satisfied
 * when the philo die stop all
 * when they all satisfied eating stop all
+*gcc -g -pthread old-main.c && ./a.out 5 1000 60 60 5
 */
