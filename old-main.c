@@ -14,9 +14,10 @@ typedef struct ph_s{
 	char *forks;
 }ph_t;
 
-typedef struct filo_s{
-	int dead; //Dead or not
-	int damaged; // low HP
+typedef struct filo_s
+{
+	int dead;//    Dead or not
+	int damaged;// HP level
 	int n_meals;// [number_of_times_eated
 }filo_t;
 
@@ -28,6 +29,7 @@ int		ft_atoi(const char *str)
 	long long	nbr;
 	int			i;
 	int			s;
+
 
 	i = 0;
 	nbr = 0;
@@ -55,7 +57,7 @@ int is_degit(char*s)
 {
 	int i;
 	i = 0;
-	if(s == NULL)
+	if (s == NULL)
 		return 2; 
 	while (s[i] != '\0')
 	{
@@ -66,14 +68,15 @@ int is_degit(char*s)
 	return (1);
 }
 
-void* routine(void *meals) {
+void* routine(void *meals)
+{
     int meal;
+
 	meal = *(int*)meals;
 	meal++;
     printf("Local sum: %d\n", meal);
     *(int*)meals = meal;
     return meals;
-
 }
 
 int inputs_checker(char **inputs)
