@@ -71,17 +71,30 @@ int is_degit(char*s)
 void* routine(void *arg)
 {
 	int index = *(int*)arg;
+
 	pthread_mutex_lock(&forks[index]);
-	
+	printf("10 ms - Philosopher [%d] has taken a fork\n", index);
+
+	if (index == (g_ph.n_philo - 1))
+		pthread_mutex_lock(&forks[0]);
+	else
+		pthread_mutex_lock(&forks[index + 1]);
+
+	printf("10 ms - Philosopher [%d] has taken a fork\n", index);
 	printf("eat\n");
 	usleep(10);
 	pthread_mutex_unlock(&forks[index]);
-	
+
+	if (index == (g_ph.n_philo - 1))
+		pthread_mutex_unlock(&forks[0]);
+	else
+		pthread_mutex_unlock(&forks[index + 1]);
+
 	printf("sleap\n");
 	usleep(10);
 	printf("think\n");
 	usleep(10);
-    return (1);
+	return (NULL);
 }
 
 int inputs_checker(char **inputs)
