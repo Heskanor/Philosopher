@@ -4,15 +4,14 @@
 #include <string.h>
 #include <pthread.h>
 
-pthread_mutex_t g_mutex;
-pthread_mutex_t *mutex;
+
+pthread_mutex_t *forks;
 typedef struct ph_s{
 	int n_philo; //number_of_philosophers
 	int t_die; //time_to_die
 	int t_eat; //time_to_eat 
 	int t_sleep;//time_to_sleep 
 	int n_meals;//[number_of_times_each_philosopher_must_eat]
-	char *forks;
 }ph_t;
 
 typedef struct philo_s
@@ -72,11 +71,11 @@ int is_degit(char*s)
 void* routine(void *arg)
 {
 	int index = *(int*)arg;
-	pthread_mutex_lock(&mutex[index]);
+	pthread_mutex_lock(&forks[index]);
 	
 	printf("eat\n");
 	usleep(10);
-	pthread_mutex_unlock(&mutex[index]);
+	pthread_mutex_unlock(&forks[index]);
 	
 	printf("sleap\n");
 	usleep(10);
@@ -103,16 +102,12 @@ void mutex_constractor(pthread_mutex_t *mutex)
 	i = 0;
 	while (i < g_ph.n_philo)
 	{
-		pthread_mutex_init(&mutex[i], NULL);
+		pthread_mutex_init(&forks[i], NULL);
 		i++;
 	}
 }
 int initializer(char **inputs)
 {
-	int forks;
-	int i;
-
-	forks = 2;
 	g_ph.n_philo = ft_atoi(inputs[1]);
 	g_ph.t_die = ft_atoi(inputs[2]);
 	g_ph.t_eat = ft_atoi(inputs[3]);
@@ -121,13 +116,12 @@ int initializer(char **inputs)
 	if (g_ph.n_philo <= 0 || g_ph.t_die < 60 || g_ph.t_eat < 60
 	 || g_ph.t_sleep < 60 || g_ph.n_meals <= 0)
 		return 1;
-	if (g_ph.n_philo > 1)
-		forks = g_ph.n_philo;
-	g_ph.forks = malloc(sizeof(char) * forks*2);
-	//pthread_mutex_init(&mutex[i], NULL); ??
+	/*if (g_ph.n_philo > 1)
+		forks = g_ph.n_philo;*/
+	//g_ph.forks = malloc(sizeof(char) * forks*2);
 	//g_ph.n_meals = malloc(sizeof(int) * g_ph.n_philo);
 	g_philo = malloc(sizeof(philo_t)*g_ph.n_philo);
-	memset( g_ph.forks, 1, forks*2 );
+
 	return 0;
 }
 
@@ -135,23 +129,23 @@ void ft_thread(ph_t ph)
 {
 	int i;
 	int j;
-	pthread_t *philo;
+	pthread_t *th;
 
 	i = 0;
 	j = 0;
-	philo = (pthread_t *)malloc(sizeof(pthread_t)*g_ph.n_philo);
+	th = (pthread_t *)malloc(sizeof(pthread_t)*g_ph.n_philo);
 	while(i < g_ph.n_philo)
 	{
-		if (pthread_create(&philo[i], NULL, &routine, &i) != 0){
+		if (pthread_create(&th[i], NULL, &routine, &i) != 0){
 			perror("Failed to create thread");
 		}
 	}
-	for (i = 0; i < 2; i++) {
-        int* r;
-        if (pthread_join(philo[i], NULL) != 0) {
+	while(i < g_ph.n_philo)
+	{
+		if (pthread_join(th[i], NULL) != 0) {
             perror("Failed to join thread");
         }
-    }
+	}
 }
 
 int main(int argc, char **argv)
