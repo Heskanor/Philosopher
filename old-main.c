@@ -110,6 +110,8 @@ void mutex_constractor(pthread_mutex_t *mutex)
 int initializer(char **inputs)
 {
 	int forks;
+	int i;
+
 	forks = 2;
 	g_ph.n_philo = ft_atoi(inputs[1]);
 	g_ph.t_die = ft_atoi(inputs[2]);
@@ -122,9 +124,9 @@ int initializer(char **inputs)
 	if (g_ph.n_philo > 1)
 		forks = g_ph.n_philo;
 	g_ph.forks = malloc(sizeof(char) * forks*2);
-	pthread_mutex_init(&mutex[i], NULL);
+	//pthread_mutex_init(&mutex[i], NULL); ??
 	//g_ph.n_meals = malloc(sizeof(int) * g_ph.n_philo);
-	g_philo = malloc(sizeof(philo_t)*g_ph.);
+	g_philo = malloc(sizeof(philo_t)*g_ph.n_philo);
 	memset( g_ph.forks, 1, forks*2 );
 	return 0;
 }
