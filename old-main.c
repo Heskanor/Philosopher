@@ -19,7 +19,7 @@ typedef struct ph_s{
   time_t        tv_sec ;   //used for seconds
   suseconds_t       tv_usec ;   //used for microseconds
 }timeval_t;*/
-struct timeval stop, start;
+struct timeval after, before;
 typedef struct philo_s
 {
 	int dead;//    Dead or not
@@ -74,32 +74,42 @@ int is_degit(char*s)
 	return (1);
 }
 
+double time_diff(struct timeval x , struct timeval y)
+{
+	double x_ms , y_ms , diff;
+	
+	x_ms = (double)x.tv_sec*1000000 + (double)x.tv_usec;
+	y_ms = (double)y.tv_sec*1000000 + (double)y.tv_usec;
+	
+	diff = (double)y_ms - (double)x_ms;
+	
+	return diff;
+}
+
 void* routine(void *arg)
 {
 	int index = *(int*)arg;
 	
 	int time;
+	time = gettimeofday(&before,NULL);
 	g_philo[index].n_meals = 0;
-	while (g_philo[index].n_meals < g_ph.n_meals && stop.tv_sec < 1)
+	while (g_philo[index].n_meals < g_ph.n_meals && after.tv_sec * 1000 < g_ph.t_die)
 	{
-		time = gettimeofday(&start,NULL);
+		time = gettimeofday(&before,NULL);
 		pthread_mutex_lock(&forks[index]);
-
 		printf("10 ms - Philosopher [%d] has taken a fork\n", index);
-
 		if (index == (g_ph.n_philo - 1))
 			pthread_mutex_lock(&forks[0]);
 		else
 			pthread_mutex_lock(&forks[index + 1]);
-
 		printf("10 ms - Philosopher [%d] has taken a fork\n", index);
 		printf("10 ms - Philosopher [%d] is eating\n", index);
 		usleep(10);
 		pthread_mutex_unlock(&forks[index]);
-		time = gettimeofday(&stop,NULL);
+		time = gettimeofday(&after,NULL);
 		g_philo[index].n_meals++;
 	}
-	printf("\nchbe3\n");
+	printf("\nchbe3 : philo%d\n",index);
 	if (index == (g_ph.n_philo - 1))
 		pthread_mutex_unlock(&forks[0]);
 	else
@@ -141,7 +151,7 @@ int initializer(char **inputs)
 	g_ph.t_eat = ft_atoi(inputs[3]);
 	g_ph.t_sleep = ft_atoi(inputs[4]);
 	g_ph.n_meals = ft_atoi(inputs[5]);
-	if (g_ph.n_philo <= 0 || g_ph.t_die < 60 || g_ph.t_eat < 60
+	if ((g_ph.n_philo <= 0 && g_ph.n_philo > 200) || g_ph.t_die < 60 || g_ph.t_eat < 60
 	 || g_ph.t_sleep < 60 || g_ph.n_meals <= 0)
 		return 1;
 	/*if (g_ph.n_philo > 1)
@@ -217,15 +227,20 @@ int main(int argc, char **argv)
 * calc time between now and last eat
 * eat when u need to eat
 * philos dies after no eating
-* stop philo after getting satisfied
+* after philo after getting satisfied
 * when the philo die stop all
 * when they all satisfied eating stop all
 *gcc -g -pthread old-main.c && ./a.out 5 1000 60 60 5
 #include <sys/time.h>
 
-struct timeval stop, start;
+struct timeval stop, before;
 gettimeofday(&start, NULL);
 //do stuff
 gettimeofday(&stop, NULL);
 printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+
+
+philo < 201
+times > 60 ms
+
 */
