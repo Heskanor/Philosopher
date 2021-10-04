@@ -179,7 +179,9 @@ void ft_thread(ph_t ph)
 	k = 1;
 	while (k)
 	{
-		if ()
+		k++;
+		if (dead_meal())
+			break;
 	}
 	while(j < g_ph.n_philo)
 	{

@@ -22,7 +22,7 @@ typedef struct philo_s
 	int dead;//    Dead or not
 	struct timeval after;
 	struct timeval before;
-	//int n_meals;// [number_of_times_eated
+	int n_meals;// [number_of_times_eated
 }philo_t;
 
 ph_t g_ph;
@@ -87,11 +87,9 @@ double time_diff(struct timeval x)
 }
 void printer(char *s)
 {
-	struct timeval now;
 	int t;
-	 
-	gettimeofday(&now,NULL);
-	t = (int)time_diff(g_ph.base,now);
+
+	t = (int)time_diff(g_ph.base);
 	if (s[0] == 'f')
 		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
 	else if (s[0] == 'e')
@@ -103,21 +101,19 @@ void printer(char *s)
 	else if (s[0] == 'd')
 		printf("%d ms - Philosopher [%d] died\n", index,t);
 }
+
 void* routine(void *arg)
 {
 	int index;
 	int next;
-	int n_meals;
 
 	g_philo[index].before = g_ph.base;
-
+	g_philo[index].dead = 0;
 	index = *(int*)arg;
-	n_meals = 0;
+	next = index + 1;
 	if (index == (g_ph.n_philo - 1))
 		next = 0;
-	else
-		next = index + 1;
-	while (n_meals < g_ph.n_meals || (int)time_diff(g_philo[index].before))
+	while (g_philo[index].n_meals < g_ph.n_meals || (int)time_diff(g_philo[index].before) < g_ph.t_die)
 	{
 		pthread_mutex_lock(&forks[index]);
 		printer("fork");
@@ -128,11 +124,16 @@ void* routine(void *arg)
 		usleep(g_ph.t_eat * 1000);
 		pthread_mutex_unlock(&forks[index]);
 		pthread_mutex_unlock(&forks[next]);
-		n_meals++;
+		g_philo[index].n_meals;
 		printer("sleep");
 		usleep(g_ph.t_sleep * 1000);
 		printer("think");
 	}
+	if ((int)time_diff(g_philo[index].before) >= g_ph.t_die)
+	{
+		printer("dead");
+		g_philo[index].dead == 1;
+	}	
 	return (NULL);
 }
 
@@ -176,7 +177,29 @@ int initializer(char **inputs)
 	mutex_constractor(forks);
 	return 0;
 }
+int breaker(void)
+{
+	int k;
+	int i;
+	int m;
 
+	k = 1;
+	while (k)
+	{
+		i  = 0;
+		m = 0;
+		while (i < g_ph.n_philo)
+		{
+			if (g_philo[i].dead == 1)
+			{
+				break;
+				k = 0;
+			}	
+			i++;
+		}
+	}
+}
+// check all meals before death or reverse these process
 void ft_thread(ph_t ph)
 {
 	int i;
@@ -195,6 +218,7 @@ void ft_thread(ph_t ph)
 		}
 		i++;
 	}
+	
 	while(j < g_ph.n_philo)
 	{
 		if (pthread_join(th[j], NULL) != 0) {
@@ -217,6 +241,8 @@ int main(int argc, char **argv)
 		printf("%d = number_of_philosophers\n%d = time_to_die\n%d = time_to_eat\n%d = time_to_sleep\n%d = number_of_times_each_philosopher_must_eat\n\n\n\n",
 		g_ph.n_philo, g_ph.t_die,g_ph.t_eat,g_ph.t_sleep,g_ph.n_meals);
 		ft_thread(g_ph);
+		if(breaker())
+			return (0);
 	}
 	else
 		printf("You fucked xD\n");
