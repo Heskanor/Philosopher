@@ -242,5 +242,5 @@ printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - 
 
 philo < 201
 times > 60 ms
-git add -A;git commit -m "no message";git push;
+git add -A;git commit -m "no message";git push;git status;git pull;
 */
