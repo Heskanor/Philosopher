@@ -72,10 +72,12 @@ int is_degit(char*s)
 	return (1);
 }
 
-double time_diff(struct timeval x , struct timeval y)
+double time_diff(struct timeval x)
 {
 	double x_ms , y_ms , diff;
-	
+	struct timeval y;
+
+	time_diff(g_ph.base,y);
 	x_ms = (double)x.tv_sec*1000 + (double)x.tv_usec/1000;
 	y_ms = (double)y.tv_sec*1000 + (double)y.tv_usec/1000;
 	
@@ -89,23 +91,26 @@ void printer(char *s)
 	int t;
 	 
 	gettimeofday(&now,NULL);
-	t = (int)timediff(g_ph.base,now);
+	t = (int)time_diff(g_ph.base,now);
 	if (s[0] == 'f')
 		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
 	else if (s[0] == 'e')
-		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
+		printf("%d ms - Philosopher [%d] is eating\n", index,t);
 	else if (s[0] == 's')
-		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
+		printf("%d ms - Philosopher [%d] is sleeping\n", index,t);
 	else if (s[0] == 't')
-		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
+		printf("%d ms - Philosopher [%d] is thinking\n", index,t);
 	else if (s[0] == 'd')
-		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
+		printf("%d ms - Philosopher [%d] died\n", index,t);
 }
 void* routine(void *arg)
 {
 	int index;
 	int next;
 	int n_meals;
+	struct timeval now;
+
+	g_philo.before[index] = g_ph.base;
 
 	index = *(int*)arg;
 	n_meals = 0;
@@ -113,22 +118,21 @@ void* routine(void *arg)
 		next = 0;
 	else
 		next = index + 1;
-	while (n_meals < g_ph.n_meals && )
+	while (n_meals < g_ph.n_meals || (int)time_diff(now))
 	{
-
 		pthread_mutex_lock(&forks[index]);
-		printf("%d ms - Philosopher [%d] has taken a fork\n", index,(int)timediff(g_ph.base,));
+		printer("fork");
 		pthread_mutex_lock(&forks[next]);
-		printf("10 ms - Philosopher [%d] has taken a fork\n", index);
-		gettimeofday(&g_philo.before,NULL);
-		printf("10 ms - Philosopher [%d] is eating\n", index);
+		printer("fork");
+		gettimeofday(&g_philo[index].before,NULL);
+		printer("eat");
 		usleep(g_ph.t_eat * 1000);
 		pthread_mutex_unlock(&forks[index]);
 		pthread_mutex_unlock(&forks[next]);
 		n_meals++;
-		printf("10 ms - Philosopher [%d] is sleeping\n", index);
+		printer("sleep");
 		usleep(g_ph.t_sleep * 1000);
-		printf("10 ms - Philosopher [%d] is thinking\n", index);
+		printer("think");
 	}
 	return (NULL);
 }
