@@ -85,7 +85,7 @@ double time_diff(struct timeval x , struct timeval y)
 	
 	return diff;
 }
-
+//test push
 void* routine(void *arg)
 {
 	int index = *(int*)arg;
