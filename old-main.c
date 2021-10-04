@@ -12,19 +12,17 @@ typedef struct ph_s{
 	int t_die; //time_to_die
 	int t_eat; //time_to_eat 
 	int t_sleep;//time_to_sleep 
+	struct timeval base;
 	int n_meals;//[number_of_times_each_philosopher_must_eat]
 }ph_t;
 
-/*typedef struct    timeval_s{
-  time_t        tv_sec ;   //used for seconds
-  suseconds_t       tv_usec ;   //used for microseconds
-}timeval_t;*/
 struct timeval after, before;
 typedef struct philo_s
 {
 	int dead;//    Dead or not
-	int damaged;// HP level
-	int n_meals;// [number_of_times_eated
+	struct timeval after;
+	struct timeval before;
+	//int n_meals;// [number_of_times_eated
 }philo_t;
 
 ph_t g_ph;
@@ -78,48 +76,48 @@ double time_diff(struct timeval x , struct timeval y)
 {
 	double x_ms , y_ms , diff;
 	
-	x_ms = (double)x.tv_sec*1000000 + (double)x.tv_usec;
-	y_ms = (double)y.tv_sec*1000000 + (double)y.tv_usec;
+	x_ms = (double)x.tv_sec*1000 + (double)x.tv_usec/1000;
+	y_ms = (double)y.tv_sec*1000 + (double)y.tv_usec/1000;
 	
 	diff = (double)y_ms - (double)x_ms;
 	
 	return diff;
 }
-//test push
+void printer(){
+	struct timeval now;
+	get
+	printf("%d ms - Philosopher [%d] has taken a fork\n", index,(int)timediff(g_ph.base,));
+}
 void* routine(void *arg)
 {
-	int index = *(int*)arg;
-	
-	int time;
-	time = gettimeofday(&before,NULL);
-	g_philo[index].n_meals = 0;
-	while (g_philo[index].n_meals < g_ph.n_meals && after.tv_sec * 1000 < g_ph.t_die)
-	{
-		time = gettimeofday(&before,NULL);
-		pthread_mutex_lock(&forks[index]);
-		printf("10 ms - Philosopher [%d] has taken a fork\n", index);
-		if (index == (g_ph.n_philo - 1))
-			pthread_mutex_lock(&forks[0]);
-		else
-			pthread_mutex_lock(&forks[index + 1]);
-		printf("10 ms - Philosopher [%d] has taken a fork\n", index);
-		printf("10 ms - Philosopher [%d] is eating\n", index);
-		usleep(10);
-		pthread_mutex_unlock(&forks[index]);
-		time = gettimeofday(&after,NULL);
-		g_philo[index].n_meals++;
-	}
-	printf("\nchbe3 : philo%d\n",index);
+	int index;
+	int next;
+	int n_meals;
+
+	index = *(int*)arg;
+	n_meals = 0;
 	if (index == (g_ph.n_philo - 1))
-		pthread_mutex_unlock(&forks[0]);
+		next = 0;
 	else
-		pthread_mutex_unlock(&forks[index + 1]);
-	printf("10 ms - Philosopher [%d] is sleeping\n", index);
-	usleep(10);
-	printf("10 ms - Philosopher [%d] is thinking\n", index);
-	usleep(10);
+		next = index + 1;
+	while (n_meals < g_ph.n_meals && )
+	{
+
+		pthread_mutex_lock(&forks[index]);
+		printf("%d ms - Philosopher [%d] has taken a fork\n", index,(int)timediff(g_ph.base,));
+		pthread_mutex_lock(&forks[next]);
+		printf("10 ms - Philosopher [%d] has taken a fork\n", index);
+		gettimeofday(&g_philo.before,NULL);
+		printf("10 ms - Philosopher [%d] is eating\n", index);
+		usleep(g_ph.t_eat * 1000);
+		pthread_mutex_unlock(&forks[index]);
+		pthread_mutex_unlock(&forks[next]);
+		n_meals++;
+		printf("10 ms - Philosopher [%d] is sleeping\n", index);
+		usleep(g_ph.t_sleep * 1000);
+		printf("10 ms - Philosopher [%d] is thinking\n", index);
+	}
 	return (NULL);
-	//died
 }
 
 int inputs_checker(char **inputs)
