@@ -83,10 +83,23 @@ double time_diff(struct timeval x , struct timeval y)
 	
 	return diff;
 }
-void printer(){
+void printer(char *s)
+{
 	struct timeval now;
-	get
-	printf("%d ms - Philosopher [%d] has taken a fork\n", index,(int)timediff(g_ph.base,));
+	int t;
+	 
+	gettimeofday(&now,NULL);
+	t = (int)timediff(g_ph.base,now);
+	if (s[0] == 'f')
+		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
+	else if (s[0] == 'e')
+		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
+	else if (s[0] == 's')
+		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
+	else if (s[0] == 't')
+		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
+	else if (s[0] == 'd')
+		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
 }
 void* routine(void *arg)
 {
