@@ -108,9 +108,8 @@ void* routine(void *arg)
 	int index;
 	int next;
 	int n_meals;
-	struct timeval now;
 
-	g_philo.before[index] = g_ph.base;
+	g_philo[index].before = g_ph.base;
 
 	index = *(int*)arg;
 	n_meals = 0;
@@ -118,7 +117,7 @@ void* routine(void *arg)
 		next = 0;
 	else
 		next = index + 1;
-	while (n_meals < g_ph.n_meals || (int)time_diff(now))
+	while (n_meals < g_ph.n_meals || (int)time_diff(g_philo[index].before))
 	{
 		pthread_mutex_lock(&forks[index]);
 		printer("fork");
