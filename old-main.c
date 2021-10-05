@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 * search forks
 * use forks
 * philos eats
-* drop forks
+* drop forks .
 * unlock mutex
 * print actions
 * calc time between now and last eat
