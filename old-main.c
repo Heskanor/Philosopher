@@ -15,6 +15,7 @@ typedef struct ph_s{
 	struct timeval base;
 	int n_meals;//[number_of_times_each_philosopher_must_eat]
 	int is_dead;
+	pthread_mutex_t death;
 }ph_t;
 
 struct timeval after, before;
@@ -139,8 +140,9 @@ void* routine(void *arg)
 	}
 	if (time_diff(g_philo[index].before) >= g_ph.t_die)
 	{
-		g_ph.is_dead = 1;
-		printer("dead",index);
+		pthread_mutex_lock(&g_ph.death);
+		g_ph.is_dead = index;
+		pthread_mutex_unlock(&g_ph.death);
 		g_philo[index].dead = 1;
 	}	
 	return (NULL);
@@ -162,6 +164,7 @@ void mutex_constractor(pthread_mutex_t *mutex)
 	int i;
 
 	i = 0;
+	pthread_mutex_init(&g_ph.death, NULL);
 	while (i < g_ph.n_philo)
 	{
 		pthread_mutex_init(&forks[i], NULL);
@@ -182,9 +185,9 @@ int initializer(char **inputs)
 		forks = g_ph.n_philo;*/
 	//g_ph.forks = malloc(sizeof(char) * forks*2);
 	forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo);
-	g_philo = malloc(sizeof(philo_t)*g_ph.n_philo);
+	g_philo = malloc(sizeof(philo_t)*(g_ph.n_philo+1));
 	mutex_constractor(forks);
-	g_ph.is_dead = 0;
+	g_ph.is_dead = -1;
 	return 0;
 }
 int breaker(pthread_t *th)
@@ -195,13 +198,16 @@ int breaker(pthread_t *th)
 	k = 1;
 	while (k)
 	{
-		if (g_ph.is_dead == 1)
+		if (g_ph.is_dead != -1)
 			break;
 	}
-	printf("DEAD OR NO ONE IS HUNGRY");
+	printer("dead",g_ph.is_dead);
 	while (i < g_ph.n_philo)
 	{
+
+		//printf ("\nlol\n");
 		pthread_detach(th[i]);
+		i++;
 	}
 	return 1;
 }
@@ -215,7 +221,7 @@ int ft_thread(ph_t ph)
 
 	i = 0;
 	j = 0;
-	th = (pthread_t *)malloc(sizeof(pthread_t)*g_ph.n_philo);
+	th = (pthread_t *)malloc(sizeof(pthread_t)*(g_ph.n_philo + 1));
 	gettimeofday(&g_ph.base,NULL);
 	while(i < g_ph.n_philo)
 	{
@@ -225,7 +231,6 @@ int ft_thread(ph_t ph)
 		i++;
 		usleep(100);
 	}
-
 	e = breaker(th);
 	while(j < g_ph.n_philo)
 	{
