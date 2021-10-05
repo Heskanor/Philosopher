@@ -83,7 +83,7 @@ int time_diff(struct timeval x)
 	y_ms = (int)y.tv_sec*1000 + (int)y.tv_usec/1000;
 	
 	diff = y_ms - x_ms;
-	
+	//printf("\n%d-%d=%d\n",y_ms,x_ms,diff);
 	return diff;
 }
 void printer(char *s, int index)
@@ -92,7 +92,9 @@ void printer(char *s, int index)
 
 	t = time_diff(g_ph.base);
 	if (s[0] == 'f')
-		printf("%d ms - Philosopher [%d] has taken a fork\n", t,index);
+		printf("%d ms - Philosopher [%d] has taken a 2end fork\n", t,index);
+	else if (s[0] == 'F')
+		printf("%d ms - Philosopher [%d] has taken a 1st fork\n", t,index);
 	else if (s[0] == 'e')
 		printf("%d ms - Philosopher [%d] is eating\n", t,index);
 	else if (s[0] == 's')
@@ -107,17 +109,22 @@ void* routine(void *arg)
 {
 	int index;
 	int next;
+	int t;
 
-	g_philo[index].before = g_ph.base;
+	g_philo[index].before.tv_sec = g_ph.base.tv_sec;
+	g_philo[index].before.tv_usec = g_ph.base.tv_usec;
 	g_philo[index].dead = 0;
 	index = *(int*)arg;
 	next = index + 1;
 	if (index == (g_ph.n_philo - 1))
 		next = 0;
-	while (g_philo[index].n_meals < g_ph.n_meals || time_diff(g_philo[index].before) < g_ph.t_die)
+	t = time_diff(g_philo[index].before);
+	sleep(1);
+	while (g_philo[index].n_meals < g_ph.n_meals && time_diff(g_philo[index].before) < g_ph.t_die)
 	{
+		
 		pthread_mutex_lock(&forks[index]);
-		printer("fork",index);
+		printer("Fork",index);
 		pthread_mutex_lock(&forks[next]);
 		printer("fork",index);
 		gettimeofday(&g_philo[index].before,NULL);
@@ -180,7 +187,7 @@ int initializer(char **inputs)
 	g_ph.is_dead = 0;
 	return 0;
 }
-int breaker(void)
+int breaker(pthread_t *th)
 {
 	int k;
 	int i;
@@ -192,14 +199,19 @@ int breaker(void)
 			break;
 	}
 	printf("DEAD OR NO ONE IS HUNGRY");
+	while (i < g_ph.n_philo)
+	{
+		pthread_detach(th[i]);
+	}
 	return 1;
 }
 // check all meals before death or reverse these process
-void ft_thread(ph_t ph)
+int ft_thread(ph_t ph)
 {
 	int i;
 	int j;
 	pthread_t *th;
+	int e;
 
 	i = 0;
 	j = 0;
@@ -207,13 +219,20 @@ void ft_thread(ph_t ph)
 	gettimeofday(&g_ph.base,NULL);
 	while(i < g_ph.n_philo)
 	{
-		
 		if (pthread_create(&th[i], NULL, &routine, &i) != 0){
 			perror("Failed to create thread");
 		}
-		i++;
+		i+=2;
 	}
-	
+	i = 1;
+	while(i < g_ph.n_philo)
+	{
+		if (pthread_create(&th[i], NULL, &routine, &i) != 0){
+			perror("Failed to create thread");
+		}
+		i+=2;
+	}
+	e = breaker(th);
 	while(j < g_ph.n_philo)
 	{
 		if (pthread_join(th[j], NULL) != 0) {
@@ -221,7 +240,7 @@ void ft_thread(ph_t ph)
         }
 		j++;
 	}
-	
+	return (e); 
 }
 
 int main(int argc, char **argv)
@@ -235,8 +254,7 @@ int main(int argc, char **argv)
 		printf("Perfect args !\n");
 		printf("%d = number_of_philosophers\n%d = time_to_die\n%d = time_to_eat\n%d = time_to_sleep\n%d = number_of_times_each_philosopher_must_eat\n\n\n\n",
 		g_ph.n_philo, g_ph.t_die,g_ph.t_eat,g_ph.t_sleep,g_ph.n_meals);
-		ft_thread(g_ph);
-		if(breaker())
+		if(ft_thread(g_ph))
 			return (0);
 	}
 	else
