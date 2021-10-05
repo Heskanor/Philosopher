@@ -72,34 +72,34 @@ int is_degit(char*s)
 	return (1);
 }
 
-double time_diff(struct timeval x)
+int time_diff(struct timeval x)
 {
-	double x_ms , y_ms , diff;
+	int x_ms , y_ms , diff;
 	struct timeval y;
 
-	time_diff(g_ph.base,y);
-	x_ms = (double)x.tv_sec*1000 + (double)x.tv_usec/1000;
-	y_ms = (double)y.tv_sec*1000 + (double)y.tv_usec/1000;
+	gettimeofday(&y,NULL);
+	x_ms = (int)x.tv_sec*1000 + (int)x.tv_usec/1000;
+	y_ms = (int)y.tv_sec*1000 + (int)y.tv_usec/1000;
 	
-	diff = (double)y_ms - (double)x_ms;
+	diff = y_ms - x_ms;
 	
 	return diff;
 }
-void printer(char *s)
+void printer(char *s, int index)
 {
 	int t;
 
-	t = (int)time_diff(g_ph.base);
+	t = time_diff(g_ph.base);
 	if (s[0] == 'f')
-		printf("%d ms - Philosopher [%d] has taken a fork\n", index,t);
+		printf("%d ms - Philosopher [%d] has taken a fork\n", t,index);
 	else if (s[0] == 'e')
-		printf("%d ms - Philosopher [%d] is eating\n", index,t);
+		printf("%d ms - Philosopher [%d] is eating\n", t,index);
 	else if (s[0] == 's')
-		printf("%d ms - Philosopher [%d] is sleeping\n", index,t);
+		printf("%d ms - Philosopher [%d] is sleeping\n", t,index);
 	else if (s[0] == 't')
-		printf("%d ms - Philosopher [%d] is thinking\n", index,t);
+		printf("%d ms - Philosopher [%d] is thinking\n", t,index);
 	else if (s[0] == 'd')
-		printf("%d ms - Philosopher [%d] died\n", index,t);
+		printf("%d ms - Philosopher [%d] died\n", t,index);
 }
 
 void* routine(void *arg)
@@ -116,23 +116,23 @@ void* routine(void *arg)
 	while (g_philo[index].n_meals < g_ph.n_meals || (int)time_diff(g_philo[index].before) < g_ph.t_die)
 	{
 		pthread_mutex_lock(&forks[index]);
-		printer("fork");
+		printer("fork",index);
 		pthread_mutex_lock(&forks[next]);
-		printer("fork");
+		printer("fork",index);
 		gettimeofday(&g_philo[index].before,NULL);
-		printer("eat");
+		printer("eat",index);
 		usleep(g_ph.t_eat * 1000);
 		pthread_mutex_unlock(&forks[index]);
 		pthread_mutex_unlock(&forks[next]);
-		g_philo[index].n_meals;
-		printer("sleep");
+		g_philo[index].n_meals++;
+		printer("sleep",index);
 		usleep(g_ph.t_sleep * 1000);
-		printer("think");
+		printer("think",index);
 	}
 	if ((int)time_diff(g_philo[index].before) >= g_ph.t_die)
 	{
-		printer("dead");
-		g_philo[index].dead == 1;
+		printer("dead",index);
+		g_philo[index].dead = 1;
 	}	
 	return (NULL);
 }
@@ -194,7 +194,7 @@ int breaker(void)
 			{
 				break;
 				k = 0;
-			}	
+			}
 			i++;
 		}
 	}
@@ -209,7 +209,7 @@ void ft_thread(ph_t ph)
 	i = 0;
 	j = 0;
 	th = (pthread_t *)malloc(sizeof(pthread_t)*g_ph.n_philo);
-	
+	gettimeofday(&g_ph.base,NULL);
 	while(i < g_ph.n_philo)
 	{
 		
