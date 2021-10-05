@@ -105,30 +105,36 @@ void printer(char *s, int index)
 	else if (s[0] == 'd')
 		printf("%d ms - Philosopher [%d] died\n", t,index);
 }
+int time_to_ms(struct timeval t)
+{
+	int x_ms;
 
+	x_ms = (int)t.tv_sec*1000 + (int)t.tv_usec/1000;
+	return x_ms;
+}
 void* routine(void *arg)
 {
 	int index;
 	int next;
-	int t;
+	int timer;
 
-	g_philo[index].before.tv_sec = g_ph.base.tv_sec;
-	g_philo[index].before.tv_usec = g_ph.base.tv_usec;
+	timer = time_diff(g_ph.base); // create a function that convert from timeval to int;
+	//timer.tv_usec = g_ph.base.tv_usec;
 	g_philo[index].dead = 0;
 	index = *(int*)arg;
 	next = index + 1;
 	if (index == (g_ph.n_philo - 1))
 		next = 0;
-	t = time_diff(g_philo[index].before);
+
 	sleep(1);
-	while (g_philo[index].n_meals < g_ph.n_meals && time_diff(g_philo[index].before) < g_ph.t_die)
+	while (g_philo[index].n_meals < g_ph.n_meals && timer < g_ph.t_die)
 	{
-		
 		pthread_mutex_lock(&forks[index]);
 		printer("Fork",index);
 		pthread_mutex_lock(&forks[next]);
 		printer("fork",index);
 		gettimeofday(&g_philo[index].before,NULL);
+		timer = time_diff(g_philo[index].before);
 		printer("eat",index);
 		usleep(g_ph.t_eat * 1000);
 		pthread_mutex_unlock(&forks[index]);
@@ -291,8 +297,10 @@ gettimeofday(&start, NULL);
 gettimeofday(&stop, NULL);
 printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
 
-gcc -g -pthread old-main.c && ./a.out 5 1948032830 6000 600 5     
+gcc -g -pthread old-main.c && ./a.out 5 1948032830 6000 600 5   
+gcc -g -pthread old-main.c && ./a.out 5 1948000000 6000 600 5     
 philo < 201
+
 times > 60 ms
 
 */
