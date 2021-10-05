@@ -105,6 +105,12 @@ void printer(char *s, int index)
 	else if (s[0] == 'd')
 		printf("%d ms - Philosopher [%d] died\n", t,index);
 }
+
+int death_checker(int timer, int index)
+{
+	if (time < g_ph.t_die)
+		g_ph.t_die = 0;
+}
 int time_to_ms(struct timeval t)
 {
 	int x_ms;
@@ -218,6 +224,8 @@ int breaker(pthread_t *th)
 	return 1;
 }
 // check all meals before death or reverse these process
+// does philosopher die while doing something ????????????????// maybe yes
+
 int ft_thread(ph_t ph)
 {
 	int i;
@@ -240,9 +248,7 @@ int ft_thread(ph_t ph)
 	e = breaker(th);
 	while(j < g_ph.n_philo)
 	{
-		if (pthread_join(th[j], NULL) != 0) {
-            perror("Failed to join thread");
-        }
+		pthread_join(th[j], NULL);
 		j++;
 	}
 	return (e); 
