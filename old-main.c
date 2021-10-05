@@ -87,12 +87,12 @@ int time_diff(struct timeval x)
 	//printf("\n%d-%d=%d\n",y_ms,x_ms,diff);
 	return diff;
 }
-void printer(int tchar *s, int index)
+void printer(char *s, int index)
 {
 	int t;
 
 	t = time_diff(g_ph.base);
-	death_checker(timer ,index);
+	//death_checker(timer ,index);
 	if (s[0] == 'f')
 		printf("%d ms - Philosopher [%d] has taken a 2end fork\n", t,index);
 	else if (s[0] == 'F')
@@ -211,6 +211,11 @@ int breaker(pthread_t *th)
 	k = 1;
 	while (k)
 	{
+		i = 0;
+		while (i < g_ph.n_philo)
+		{
+			i++;
+		}
 		if (g_ph.is_dead != -1)
 			break;
 	}
