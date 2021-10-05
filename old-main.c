@@ -198,6 +198,7 @@ int breaker(void)
 			i++;
 		}
 	}
+	printf("DEAD OR NO ONE IS HUNGRY")
 }
 // check all meals before death or reverse these process
 void ft_thread(ph_t ph)
