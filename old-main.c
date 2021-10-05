@@ -222,16 +222,10 @@ int ft_thread(ph_t ph)
 		if (pthread_create(&th[i], NULL, &routine, &i) != 0){
 			perror("Failed to create thread");
 		}
-		i+=2;
+		i++;
+		usleep(100);
 	}
-	i = 1;
-	while(i < g_ph.n_philo)
-	{
-		if (pthread_create(&th[i], NULL, &routine, &i) != 0){
-			perror("Failed to create thread");
-		}
-		i+=2;
-	}
+
 	e = breaker(th);
 	while(j < g_ph.n_philo)
 	{
