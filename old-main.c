@@ -14,6 +14,7 @@ typedef struct ph_s{
 	int t_sleep;//time_to_sleep 
 	struct timeval base;
 	int n_meals;//[number_of_times_each_philosopher_must_eat]
+	int is_dead;
 }ph_t;
 
 struct timeval after, before;
@@ -113,7 +114,7 @@ void* routine(void *arg)
 	next = index + 1;
 	if (index == (g_ph.n_philo - 1))
 		next = 0;
-	while (g_philo[index].n_meals < g_ph.n_meals || (int)time_diff(g_philo[index].before) < g_ph.t_die)
+	while (g_philo[index].n_meals < g_ph.n_meals || time_diff(g_philo[index].before) < g_ph.t_die)
 	{
 		pthread_mutex_lock(&forks[index]);
 		printer("fork",index);
@@ -129,8 +130,9 @@ void* routine(void *arg)
 		usleep(g_ph.t_sleep * 1000);
 		printer("think",index);
 	}
-	if ((int)time_diff(g_philo[index].before) >= g_ph.t_die)
+	if (time_diff(g_philo[index].before) >= g_ph.t_die)
 	{
+		g_ph.is_dead = 1;
 		printer("dead",index);
 		g_philo[index].dead = 1;
 	}	
@@ -175,30 +177,22 @@ int initializer(char **inputs)
 	forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo);
 	g_philo = malloc(sizeof(philo_t)*g_ph.n_philo);
 	mutex_constractor(forks);
+	g_ph.is_dead = 0;
 	return 0;
 }
 int breaker(void)
 {
 	int k;
 	int i;
-	int m;
 
 	k = 1;
 	while (k)
 	{
-		i  = 0;
-		m = 0;
-		while (i < g_ph.n_philo)
-		{
-			if (g_philo[i].dead == 1)
-			{
-				break;
-				k = 0;
-			}
-			i++;
-		}
+		if (g_ph.is_dead == 1)
+			break;
 	}
-	printf("DEAD OR NO ONE IS HUNGRY")
+	printf("DEAD OR NO ONE IS HUNGRY");
+	return 1;
 }
 // check all meals before death or reverse these process
 void ft_thread(ph_t ph)
