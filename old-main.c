@@ -302,5 +302,5 @@ gcc -g -pthread old-main.c && ./a.out 5 1948000000 6000 600 5
 philo < 201
 
 times > 60 ms
-
+..
 */
