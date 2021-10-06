@@ -10,8 +10,7 @@
         "request": "launch",
         "program": "${workspaceFolder}/a.out",
         "args": [
-            "-g",
-            "-pthread"
+            "5", "1000", "60", "60", "5"
         ],
         "stopAtEntry": false,
         "cwd": "${fileDirname}",

@@ -298,7 +298,7 @@ int main(int argc, char **argv)
 * after philo after getting satisfied
 * when the philo die stop all
 * when they all satisfied eating stop all
-*gcc -g -pthread old-main.c && ./a.out 5 1000 60 60 5
+*gcc -g -pthread main.c && ./a.out 5 1000 60 60 5
 #include <sys/time.h>
 
 struct timeval stop, before;

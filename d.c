@@ -24,6 +24,7 @@ typedef struct ph_s{
 	struct timeval base;
 	int n_meals;
 	struct timeval *before;
+	int *timer;
 	int death;
 	int hunger;
 	int* philo;
@@ -122,9 +123,10 @@ int initializer(char **inputs)
 	g_ph.forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo);//allocated
 	g_ph.ph_meals = malloc(sizeof(int) * g_ph.n_philo);//allocated
 	g_ph.philo = malloc(sizeof(int) * g_ph.n_philo);//allocated
-	g_ph.before = malloc(sizeof(struct timeval) * g_ph.n_philo);//allocated
+	g_ph.timer = malloc(sizeof(struct timeval) * g_ph.n_philo);//allocated
 	memset(g_ph.ph_meals, 0, g_ph.n_philo);
 	memset(g_ph.philo, 0, g_ph.n_philo);
+	memset(g_ph.timer, 0, g_ph.n_philo);
 	mutex_constractor(g_ph.forks);
 	return 0;
 }
@@ -149,19 +151,26 @@ void printer(char *s, int index, int sleeper)
 
 	t = time_diff(g_ph.base);
 	//g_ph.philo = s[0];
+	
 	pthread_mutex_lock(&g_ph.print_mutex);
-	if (s[0] == 'f')
-		printf("%d ms - Philosopher [%d] has taken a 2end fork\n", t,index + 1);
-	else if (s[0] == 'F')
-		printf("%d ms - Philosopher [%d] has taken a 1st fork\n", t,index + 1);
-	else if (s[0] == 'e')
-		printf("%d ms - Philosopher [%d] is eating\n", t,index + 1);
-	else if (s[0] == 's')
-		printf("%d ms - Philosopher [%d] is sleeping\n", t,index + 1);
-	else if (s[0] == 't')
-		printf("%d ms - Philosopher [%d] is thinking\n", t,index + 1);
-	pthread_mutex_unlock(&g_ph.print_mutex);
-	usleep(sleeper * 1000);
+	if (s[0] == 'd')
+		printf("%d ms - Philosopher [%d] died\n", t, index + 1);
+	else 
+	{
+		if (s[0] == 'f')
+			printf("%d ms - Philosopher [%d] has taken a 2end fork\n", t,index + 1);
+		else if (s[0] == 'F')
+			printf("%d ms - Philosopher [%d] has taken a 1st fork\n", t,index + 1);
+		else if (s[0] == 'e')
+			printf("%d ms - Philosopher [%d] is eating\n", t,index + 1);
+		else if (s[0] == 's')
+			printf("%d ms - Philosopher [%d] is sleeping\n", t,index + 1);
+		else if (s[0] == 't')
+			printf("%d ms - Philosopher [%d] is thinking\n", t,index + 1);
+		pthread_mutex_unlock(&g_ph.print_mutex);
+		usleep(sleeper * 1000);
+	}
+	
 }
 
 void* routine(void *arg)
@@ -208,10 +217,10 @@ int breaker(pthread_t *th)
 				j = 0;
 				while (j < g_ph.n_philo)
 				{
-					pthread_detach(th[j]);
+					pthread_detach(th[i]);
 					j++;
 				}
-				printf("%d ms - Philosopher [%d] died\n", time_diff(g_ph.before[i]), i + 1);
+				printer("dead",i,0);
 				return i;
 			}
 			else if (g_ph.ph_meals[i] == g_ph.n_meals)
@@ -231,7 +240,7 @@ int ft_thread(void)
 	int e;
 
 	i = 0;
-	th = (pthread_t *)malloc(sizeof(pthread_t)*(g_ph.n_philo)); //allocated
+	th = (pthread_t *)malloc(sizeof(pthread_t)*(g_ph.n_philo + 1)); //allocated
 	gettimeofday(&g_ph.base,NULL);
 	while(i < g_ph.n_philo)
 	{
