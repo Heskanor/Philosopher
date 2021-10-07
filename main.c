@@ -17,40 +17,41 @@
 #include <sys/time.h>
 
 typedef struct ph_s{
-	int n_philo;
-	int t_die;
-	int t_eat;
-	int t_sleep;
-	struct timeval base;
-	int n_meals;
-	struct timeval *before;
-	int death;
-	int hunger;
-	int* ph_meals;
-	pthread_mutex_t* forks;
-	pthread_mutex_t print_mutex;
-}ph_t;
+	int					n_philo;
+	int					t_die;
+	int					t_eat;
+	int					t_sleep;
+	struct timeval		base;
+	int					n_meals;
+	struct timeval		*before;
+	int					death;
+	int					hunger;
+	int					*ph_meals;
+	pthread_mutex_t		*forks;
+	pthread_mutex_t		print_mutex;
+}						t_ph;
 
-ph_t g_ph;
+t_ph	g_ph;
 
-int is_degit(char *s)
+int	is_degit(char *s)
 {
-	int i;
+	int	i;
+
 	i = 0;
 	if (s == NULL)
-		return 2;
+		return (2);
 	while (s[i] != '\0')
 	{
-		if (s[i] < '0' || s[i] >'9')
+		if (s[i] < '0' || s[i] > '9')
 			return (0);
 		i++;
 	}
 	return (1);
 }
 
-int inputs_checker(char **inputs, int c)
+int	inputs_checker(char **inputs, int c)
 {
-	int i;
+	int	i;
 
 	i = 1;
 	if (c == 0)
@@ -60,14 +61,15 @@ int inputs_checker(char **inputs, int c)
 		if (i != 6)
 			return (1);
 		return (0);
-	}else if ((g_ph.n_philo <= 0 || g_ph.n_philo > 200)
-	|| g_ph.t_die < 60 || g_ph.t_eat < 60
-	|| g_ph.t_sleep < 60 || (g_ph.n_meals <= 0 && g_ph.n_meals != -1))
+	}
+	else if ((g_ph.n_philo <= 0 || g_ph.n_philo > 200)
+		|| g_ph.t_die < 60 || g_ph.t_eat < 60
+		|| g_ph.t_sleep < 60 || (g_ph.n_meals <= 0 && g_ph.n_meals != -1))
 		return (1);
 	return (0);
 }
 
-int		ft_atoi(const char *str)
+int	ft_atoi(const char *str)
 {
 	long long	nbr;
 	int			i;
@@ -76,7 +78,7 @@ int		ft_atoi(const char *str)
 	i = 0;
 	nbr = 0;
 	s = 1;
-	while (str[i] == 32 || (str[i] < 14 &&  str[i] > 8))
+	while (str[i] == 32 || (str[i] < 14 && str[i] > 8))
 		i++;
 	if (str[i] == '-' || str[i] == '+')
 	{
@@ -94,10 +96,10 @@ int		ft_atoi(const char *str)
 	return (nbr * s);
 }
 
-void mutex_constractor(pthread_mutex_t *mutex)
+void	mutex_constractor(pthread_mutex_t *mutex)
 {
-	int i;
-	int forks;
+	int	i;
+	int	forks;
 
 	i = 0;
 	forks = g_ph.n_philo;
@@ -109,7 +111,7 @@ void mutex_constractor(pthread_mutex_t *mutex)
 	}
 }
 
-int initializer(char **inputs, int m)
+int	initializer(char **inputs, int m)
 {
 	g_ph.death = 0;
 	g_ph.hunger = 0;
@@ -120,25 +122,24 @@ int initializer(char **inputs, int m)
 	g_ph.n_meals = -1;
 	if (m == 6)
 		g_ph.n_meals = ft_atoi(inputs[5]);
-	if(inputs_checker(inputs,1))
-		return(1);
+	if (inputs_checker(inputs, 1))
+		return (1);
 	if (g_ph.n_philo == 1)
 		g_ph.forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo + 1);
 	else
-		g_ph.forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo);//allocated
-	g_ph.ph_meals = malloc(sizeof(int) * g_ph.n_philo);//allocated
-	g_ph.before = malloc(sizeof(struct timeval) * g_ph.n_philo);//allocated
-	printf("\n%d\n",g_ph.ph_meals[0]);
+		g_ph.forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo);
+	g_ph.ph_meals = malloc(sizeof(int) * g_ph.n_philo);
+	g_ph.before = malloc(sizeof(struct timeval) * g_ph.n_philo);
 	mutex_constractor(g_ph.forks);
-	return 0;
+	return (0);
 }
 
-int time_diff(struct timeval x)
+int	time_diff(struct timeval x)
 {
-	int x_ms;
-	int y_ms;
-	int diff;
-	struct timeval y;
+	int				x_ms;
+	int				y_ms;
+	int				diff;
+	struct timeval	y;
 
 	gettimeofday(&y, NULL);
 	x_ms = (int)x.tv_sec * 1000 + (int)x.tv_usec / 1000;
@@ -147,62 +148,74 @@ int time_diff(struct timeval x)
 	return (diff);
 }
 
-void printer(char *s, int index, int sleeper)
+void	printer(char *s, int index, int sleeper)
 {
-	int t;
+	int	t;
 
 	t = time_diff(g_ph.base);
 	pthread_mutex_lock(&g_ph.print_mutex);
-	if (s[0] == 'f')
-		printf("%d ms - Philosopher [%d] has taken a 2end fork\n", t,index + 1);
+	if (s[0] == 'd')
+		printf("%d ms Philosopher[%d] died\n", t, index + 1);
+	else if (s[0] == 'f')
+		printf("%d ms Philosopher[%d] has taken a 2end fork\n", t, index + 1);
 	else if (s[0] == 'F')
-		printf("%d ms - Philosopher [%d] has taken a 1st fork\n", t,index + 1);
+		printf("%d ms Philosopher[%d] has taken a 1st fork\n", t, index + 1);
 	else if (s[0] == 'e')
-		printf("%d ms - Philosopher [%d] is eating\n", t,index + 1);
+		printf("%d ms Philosopher[%d] is eating\n", t, index + 1);
 	else if (s[0] == 's')
-		printf("%d ms - Philosopher [%d] is sleeping\n", t,index + 1);
+		printf("%d ms Philosopher[%d] is sleeping\n", t, index + 1);
 	else if (s[0] == 't')
-		printf("%d ms - Philosopher [%d] is thinking\n", t,index + 1);
+		printf("%d ms Philosopher[%d] is thinking\n", t, index + 1);
 	pthread_mutex_unlock(&g_ph.print_mutex);
 	if (s[0] == 'e' || s[0] == 's')
 		usleep(sleeper * 1000);
 }
 
-void* routine(void *arg)
+void	*routine(void *arg)
 {
-	int index;
-	int next;
+	int	index;
+	int	next;
 
-	index = *(int*)arg;
+	index = *(int *)arg;
 	next = index + 1;
-
 	g_ph.ph_meals[index] = 0;
 	if (index == (g_ph.n_philo - 1) && index != 0)
 		next = 0;
 	while (g_ph.hunger < g_ph.n_philo)
 	{
 		pthread_mutex_lock(&g_ph.forks[index]);
-		printer("Fork",index, 0);
+		printer("Fork", index, 0);
 		pthread_mutex_lock(&g_ph.forks[next]);
-		printer("fork",index,0);
-		printer("eat",index,g_ph.t_eat);
-		gettimeofday(&g_ph.before[index],NULL);
+		printer("fork", index, 0);
+		printer("eat", index, g_ph.t_eat);
+		gettimeofday(&g_ph.before[index], NULL);
 		pthread_mutex_unlock(&g_ph.forks[index]);
 		pthread_mutex_unlock(&g_ph.forks[next]);
 		g_ph.ph_meals[index]++;
-		printer("sleep",index,g_ph.t_sleep);
-		printer("think",index,0);
+		printer("sleep", index, g_ph.t_sleep);
+		printer("think", index, 0);
 	}
 	return (NULL);
 }
 
-int breaker(pthread_t *th)
+int	death_checker(pthread_t *th, int i)
 {
-	int k;
-	int i;
-	int j;
+	int	j;
 
-	k = 1;
+	j = 0;
+	while (j < g_ph.n_philo)
+	{
+		pthread_detach(th[j]);
+		j++;
+	}
+	printer("dead", i, 0);
+	return (i);
+}
+
+int	breaker(pthread_t *th)
+{
+	int	i;
+
 	while (k)
 	{
 		g_ph.hunger = 0;
@@ -211,82 +224,68 @@ int breaker(pthread_t *th)
 		{
 			if (g_ph.t_die <= time_diff(g_ph.before[i]))
 			{
-				j = 0;
-				while (j < g_ph.n_philo)
-				{
-					pthread_detach(th[j]);
-					j++;
-				}
-				printf("%d ms - Philosopher [%d] died\n", time_diff(g_ph.before[i]), i + 1);
-				return i;
+				return (death_checker(th, i));
 			}
 			else if (g_ph.ph_meals[i] >= g_ph.n_meals && g_ph.n_meals != -1)
 				g_ph.hunger++;
-			
 			if (g_ph.hunger == g_ph.n_philo)
-				return -1;
+				return (-1);
 			i++;
 		}
 	}
-	return 1;
+	return (1);
 }
 
-int ft_thread(void)
+int	ft_thread(void)
 {
-	int i;
-	pthread_t *th;
-	int e;
+	int			i;
+	pthread_t	*th;
+	int			e;
 
 	i = 0;
-	th = (pthread_t *)malloc(sizeof(pthread_t)*(g_ph.n_philo)); //allocated
-	gettimeofday(&g_ph.base,NULL);
-	while(i < g_ph.n_philo)
+	th = (pthread_t *)malloc(sizeof(pthread_t) * (g_ph.n_philo));
+	gettimeofday(&g_ph.base, NULL);
+	while (i < g_ph.n_philo)
 	{
 		g_ph.before[i].tv_sec = g_ph.base.tv_sec;
 		g_ph.before[i].tv_usec = g_ph.base.tv_usec;
-		if (pthread_create(&th[i], NULL, &routine, &i) != 0){
-			perror("Failed to create thread");
-		}
+		if (pthread_create(&th[i], NULL, &routine, &i) != 0)
+			printf("Failed to create thread");
 		usleep(100);
 		i++;
-		
 	}
 	i = 0;
 	e = breaker(th);
-	while(i < g_ph.n_philo)
+	while (i < g_ph.n_philo)
 	{
 		pthread_join(th[i], NULL);
 		i++;
 	}
 	free(th);
-	return (e); 
+	return (e);
 }
-void freeta(void)
+
+void	freeta(void)
 {
 	free(g_ph.forks);
 	free(g_ph.ph_meals);
 	free(g_ph.before);
 }
-int main(int argc, char **argv)
+
+int	main(int argc, char **argv)
 {
-	if ((argc == 6 || argc == 5) && !inputs_checker(argv,0) && !initializer(argv, argc))
+	if ((argc == 6 || argc == 5) && !inputs_checker(argv, 0)
+		&& !initializer(argv, argc))
 	{
-		printf("Perfect args !\n");
-		printf("%d = number_of_philosophers\n%d = time_to_die\n%d = time_to_eat\n%d = time_to_sleep\n%d = number_of_times_each_philosopher_must_eat\n\n\n\n",
-		g_ph.n_philo, g_ph.t_die,g_ph.t_eat,g_ph.t_sleep,g_ph.n_meals);
-		if(ft_thread() == -1)
+		if (ft_thread() == -1)
 		{
 			printf("\nkolchi chbe3\n");
 			freeta();
 		}	
-		else	
+		else
 			return (0);
 	}
 	else
 		printf("You fucked xD\n");
 	return (0);
 }
-
-/*printf("%d = number_of_philosophers\n%d = time_to_die\n%d = time_to_eat\n%d = time_to_sleep\n%d = number_of_times_each_philosopher_must_eat\n\n\n\n",
-		g_ph.n_philo, g_ph.t_die,g_ph.t_eat,g_ph.t_sleep,g_ph.n_meals);*/
-		
