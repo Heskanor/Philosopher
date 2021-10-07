@@ -161,7 +161,8 @@ void printer(char *s, int index, int sleeper)
 	else if (s[0] == 't')
 		printf("%d ms - Philosopher [%d] is thinking\n", t,index + 1);
 	pthread_mutex_unlock(&g_ph.print_mutex);
-	usleep(sleeper * 1000);
+	if (s[0] == 'e' || s[0] == 's')
+		usleep(sleeper * 1000);
 }
 
 void* routine(void *arg)
@@ -226,7 +227,7 @@ int breaker(pthread_t *th)
 
 int ft_thread(void)
 {
-	int i;
+	int i,j;
 	pthread_t *th;
 	int e;
 
@@ -237,11 +238,14 @@ int ft_thread(void)
 	{
 		g_ph.before[i].tv_sec = g_ph.base.tv_sec;
 		g_ph.before[i].tv_usec = g_ph.base.tv_usec;
-		if (pthread_create(&th[i], NULL, &routine, &i) != 0){
+		//printf("\n%d\n",i);
+		j = i;
+		if (pthread_create(&th[j], NULL, &routine, &j) != 0){
 			perror("Failed to create thread");
 		}
-		i++;
 		usleep(100);
+		i++;
+		
 	}
 	i = 0;
 	e = breaker(th);
@@ -262,6 +266,8 @@ int main(int argc, char **argv)
 	if (argc == 6 && !inputs_checker(argv,0) && !initializer(argv))
 	{
 		printf("Perfect args !\n");
+		printf("%d = number_of_philosophers\n%d = time_to_die\n%d = time_to_eat\n%d = time_to_sleep\n%d = number_of_times_each_philosopher_must_eat\n\n\n\n",
+		g_ph.n_philo, g_ph.t_die,g_ph.t_eat,g_ph.t_sleep,g_ph.n_meals);
 		if(ft_thread())
 			return (0);
 	}
