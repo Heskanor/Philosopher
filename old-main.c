@@ -107,7 +107,7 @@ void printer(char *s, int index)
 
 int death_checker(int timer, int index)
 {
-	if (time < g_ph.t_die)
+	if (timer < g_ph.t_die)
 		g_ph.is_dead = index;
 }
 int time_to_ms(struct timeval t)
