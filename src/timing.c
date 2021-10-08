@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosopher.h"
+#include "../include/philo.h"
 
 unsigned int	time_diff(struct timeval x)
 {

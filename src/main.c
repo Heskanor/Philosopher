@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosopher.h"
+#include "../include/philo.h"
 
 void	printer(char *str, int index, unsigned int sleeper)
 {
