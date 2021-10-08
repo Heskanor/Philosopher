@@ -9,180 +9,20 @@
 /*   Updated: 2021/10/05 21:15:01 by ashite           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <pthread.h>
-#include <sys/time.h>
 
-typedef struct ph_s{
-	int					n_philo;
-	int					t_die;
-	int					t_eat;
-	int					t_sleep;
-	struct timeval		base;
-	int					n_meals;
-	struct timeval		*before;
-	int					death;
-	int					hunger;
-	int					*ph_meals;
-	pthread_mutex_t		*forks;
-	pthread_mutex_t		print_mutex;
-}						t_ph;
+#include "philosopher.h"
 
-t_ph	g_ph;
-
-int	is_degit(char *s)
+void	printer(char *str, int index, unsigned int sleeper)
 {
-	int	i;
-
-	i = 0;
-	if (s == NULL)
-		return (2);
-	while (s[i] != '\0')
-	{
-		if (s[i] < '0' || s[i] > '9')
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
-int	inputs_checker(char **inputs, int c)
-{
-	int	i;
-
-	i = 1;
-	if (c == 0)
-	{
-		while (i < 6 && is_degit(inputs[i]))
-			i++;
-		if (i != 6)
-			return (1);
-		return (0);
-	}
-	else if ((g_ph.n_philo <= 0 || g_ph.n_philo > 200)
-		|| g_ph.t_die < 60 || g_ph.t_eat < 60
-		|| g_ph.t_sleep < 60 || (g_ph.n_meals <= 0 && g_ph.n_meals != -1))
-		return (1);
-	return (0);
-}
-
-int	ft_atoi(const char *str)
-{
-	long long	nbr;
-	int			i;
-	int			s;
-
-	i = 0;
-	nbr = 0;
-	s = 1;
-	while (str[i] == 32 || (str[i] < 14 && str[i] > 8))
-		i++;
-	if (str[i] == '-' || str[i] == '+')
-	{
-		if (str[i++] == '-')
-			s = -1;
-	}
-	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9')
-	{
-		nbr = nbr * 10 + (str[i++] - '0');
-		if (nbr > 4294967295)
-		{
-			return (-1);
-		}
-	}
-	return (nbr * s);
-}
-
-void	mutex_constractor(pthread_mutex_t *mutex)
-{
-	int	i;
-	int	forks;
-
-	i = 0;
-	forks = g_ph.n_philo;
-	pthread_mutex_init(&g_ph.print_mutex, NULL);
-	while (i < forks)
-	{
-		pthread_mutex_init(&mutex[i], NULL);
-		i++;
-	}
-}
-
-int	initializer(char **inputs, int m)
-{
-	g_ph.death = 0;
-	g_ph.hunger = 0;
-	g_ph.n_philo = ft_atoi(inputs[1]);
-	g_ph.t_die = ft_atoi(inputs[2]);
-	g_ph.t_eat = ft_atoi(inputs[3]);
-	g_ph.t_sleep = ft_atoi(inputs[4]);
-	g_ph.n_meals = -1;
-	if (m == 6)
-		g_ph.n_meals = ft_atoi(inputs[5]);
-	if (inputs_checker(inputs, 1))
-		return (1);
-	if (g_ph.n_philo == 1)
-		g_ph.forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo + 1);
-	else
-		g_ph.forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo);
-	g_ph.ph_meals = malloc(sizeof(int) * g_ph.n_philo);
-	g_ph.before = malloc(sizeof(struct timeval) * g_ph.n_philo);
-	mutex_constractor(g_ph.forks);
-	return (0);
-}
-
-int	time_diff(struct timeval x)
-{
-	int				x_ms;
-	int				y_ms;
-	int diff;
-	struct timeval	y;
-
-	gettimeofday(&y, NULL);
-	x_ms = (int)x.tv_sec * 1000 + (int)x.tv_usec / 1000;
-	y_ms = (int)y.tv_sec * 1000 + (int)y.tv_usec / 1000;
-	diff = y_ms - x_ms;
-	return (diff);
-}
-
-long	time_now()
-{
-	struct timeval y;
-	long y_ms;
-	gettimeofday(&y,NULL);
-		y_ms = (int)y.tv_sec * 1000 + (int)y.tv_usec / 1000;
-
-	return(y_ms);
-}
-
-void 	mysleep(int t)
-{
-	struct timeval y;
-	long	y_ms;
-
-	gettimeofday(&y,NULL);
-	y_ms = (int)y.tv_sec * 1000 + (int)y.tv_usec / 1000;
-	
-	usleep(t * 1000 * 0.85);
-	while(time_now() < y_ms + t)
-		continue;
-}
-
-void	printer(char *str, int index, int sleeper)
-{
-	int	t;
+	unsigned int	t;
 
 	pthread_mutex_lock(&g_ph.print_mutex);
 	t = time_diff(g_ph.base);
-	printf("%d ms Philosopher[%d] %s\n", t, index + 1, str);
+	printf("%u ms Philosopher[%d] %s\n", t, index + 1, str);
 	if (str[0] != 'd')
 		pthread_mutex_unlock(&g_ph.print_mutex);
 	if (sleeper > 0)
 		mysleep(sleeper);
-	
 }
 
 void	*routine(void *arg)
@@ -210,20 +50,6 @@ void	*routine(void *arg)
 		printer("is thinking", index, 0);
 	}
 	return (NULL);
-}
-
-int	death_checker(pthread_t *th, int i)
-{
-	int	j;
-
-	j = 0;
-	while (j < g_ph.n_philo)
-	{
-		pthread_detach(th[j]);
-		j++;
-	}
-	printer("die", i, 0);
-	return (i);
 }
 
 int	breaker(pthread_t *th)
@@ -279,27 +105,10 @@ int	ft_thread(void)
 	return (e);
 }
 
-void	freeta(void)
-{
-	free(g_ph.forks);
-	free(g_ph.ph_meals);
-	free(g_ph.before);
-}
-
 int	main(int argc, char **argv)
 {
-	if ((argc == 6 || argc == 5) && !inputs_checker(argv, 0)
-		&& !initializer(argv, argc))
-	{
-		if (ft_thread() == -1)
-		{
-			printf("\nkolchi chbe3\n");
-			freeta();
-		}	
-		else
-			return (0);
-	}
-	else
-		printf("You fucked xD\n");
+	if (((argc == 6 || argc == 5) && !inputs_checker(argv, 0)
+			&& !initializer(argv, argc)) && ft_thread() == -1)
+		freeta();
 	return (0);
 }
