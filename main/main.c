@@ -148,6 +148,35 @@ int	time_diff(struct timeval x)
 	return (diff);
 }
 
+long	time_now()
+{
+	struct timeval y;
+	long y_ms;
+	gettimeofday(&y,NULL);
+		y_ms = (int)y.tv_sec * 1000 + (int)y.tv_usec / 1000;
+
+	return(y_ms);
+}
+
+void 	mysleep(int t)
+{
+	struct timeval y;
+	long	y_ms;
+
+	gettimeofday(&y,NULL);
+	y_ms = (int)y.tv_sec * 1000 + (int)y.tv_usec / 1000;
+	
+	usleep(t * 1000 * 0.85);
+	while(time_now() < y_ms + t)
+	{
+		continue;
+	}
+
+
+
+}
+
+
 void	printer(char *s, int index, int sleeper)
 {
 	int	t;
@@ -168,7 +197,7 @@ void	printer(char *s, int index, int sleeper)
 		printf("%d ms Philosopher[%d] is thinking\n", t, index + 1);
 	pthread_mutex_unlock(&g_ph.print_mutex);
 	if (s[0] == 'e' || s[0] == 's')
-		usleep(sleeper * 1000);
+		mysleep(sleeper);
 }
 
 void	*routine(void *arg)
@@ -216,7 +245,7 @@ int	breaker(pthread_t *th)
 {
 	int	i;
 
-	while (k)
+	while (1)
 	{
 		g_ph.hunger = 0;
 		i = 0;

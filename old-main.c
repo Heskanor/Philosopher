@@ -307,7 +307,7 @@ gettimeofday(&start, NULL);
 gettimeofday(&stop, NULL);
 printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
 
-gcc -g -pthread old-main.c && ./a.out 5 1948032830 6000 600 5   
+gcc -g -pthread main.c && ./a.out 5 1000 6000 600 5   
 gcc -g -pthread old-main.c && ./a.out 5 1948000000 6000 600 5     
 philo < 201
 git add -A;git commit -m "empty msg";git push;git status
