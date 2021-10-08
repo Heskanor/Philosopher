@@ -138,7 +138,7 @@ int	time_diff(struct timeval x)
 {
 	int				x_ms;
 	int				y_ms;
-	int				diff;
+	int diff;
 	struct timeval	y;
 
 	gettimeofday(&y, NULL);
@@ -168,36 +168,21 @@ void 	mysleep(int t)
 	
 	usleep(t * 1000 * 0.85);
 	while(time_now() < y_ms + t)
-	{
 		continue;
-	}
-
-
-
 }
 
-
-void	printer(char *s, int index, int sleeper)
+void	printer(char *str, int index, int sleeper)
 {
 	int	t;
 
-	t = time_diff(g_ph.base);
 	pthread_mutex_lock(&g_ph.print_mutex);
-	if (s[0] == 'd')
-		printf("%d ms Philosopher[%d] died\n", t, index + 1);
-	else if (s[0] == 'f')
-		printf("%d ms Philosopher[%d] has taken a 2end fork\n", t, index + 1);
-	else if (s[0] == 'F')
-		printf("%d ms Philosopher[%d] has taken a 1st fork\n", t, index + 1);
-	else if (s[0] == 'e')
-		printf("%d ms Philosopher[%d] is eating\n", t, index + 1);
-	else if (s[0] == 's')
-		printf("%d ms Philosopher[%d] is sleeping\n", t, index + 1);
-	else if (s[0] == 't')
-		printf("%d ms Philosopher[%d] is thinking\n", t, index + 1);
-	pthread_mutex_unlock(&g_ph.print_mutex);
-	if (s[0] == 'e' || s[0] == 's')
+	t = time_diff(g_ph.base);
+	printf("%d ms Philosopher[%d] %s\n", t, index + 1, str);
+	if (str[0] != 'd')
+		pthread_mutex_unlock(&g_ph.print_mutex);
+	if (sleeper > 0)
 		mysleep(sleeper);
+	
 }
 
 void	*routine(void *arg)
@@ -213,16 +198,16 @@ void	*routine(void *arg)
 	while (g_ph.hunger < g_ph.n_philo)
 	{
 		pthread_mutex_lock(&g_ph.forks[index]);
-		printer("Fork", index, 0);
+		printer("has taken a 1st fork", index, 0);
 		pthread_mutex_lock(&g_ph.forks[next]);
-		printer("fork", index, 0);
-		printer("eat", index, g_ph.t_eat);
-		gettimeofday(&g_ph.before[index], NULL);
+		printer("has taken a 2end fork", index, 0);
+		printer("is eating", index, g_ph.t_eat);
 		pthread_mutex_unlock(&g_ph.forks[index]);
 		pthread_mutex_unlock(&g_ph.forks[next]);
+		gettimeofday(&g_ph.before[index], NULL);
 		g_ph.ph_meals[index]++;
-		printer("sleep", index, g_ph.t_sleep);
-		printer("think", index, 0);
+		printer("is sleeping", index, g_ph.t_sleep);
+		printer("is thinking", index, 0);
 	}
 	return (NULL);
 }
@@ -237,7 +222,7 @@ int	death_checker(pthread_t *th, int i)
 		pthread_detach(th[j]);
 		j++;
 	}
-	printer("dead", i, 0);
+	printer("die", i, 0);
 	return (i);
 }
 
