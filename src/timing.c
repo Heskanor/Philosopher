@@ -6,7 +6,7 @@
 /*   By: ashite <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/08 15:06:25 by ashite            #+#    #+#             */
-/*   Updated: 2021/10/08 15:06:30 by ashite           ###   ########.fr       */
+/*   Updated: 2021/10/08 18:55:23 by ashite           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void	mysleep(unsigned int t)
 
 	gettimeofday(&y, NULL);
 	y_ms = (int)y.tv_sec * 1000 + (int)y.tv_usec / 1000;
-	usleep(t * 1000 * 0.85);
+	usleep(t * 1000 * 0.90);
 	while (time_now() < y_ms + t)
 		continue ;
 }
@@ -51,6 +51,7 @@ void	freeta(void)
 	free(g_ph.forks);
 	free(g_ph.ph_meals);
 	free(g_ph.before);
+	free(g_ph.philos);
 }
 
 int	death_checker(pthread_t *th, int i)
@@ -58,11 +59,13 @@ int	death_checker(pthread_t *th, int i)
 	int	j;
 
 	j = 0;
+	pthread_mutex_lock(&g_ph.eat_mutex[i]);
 	while (j < g_ph.n_philo)
 	{
 		pthread_detach(th[j]);
 		j++;
 	}
+	pthread_mutex_unlock(&g_ph.eat_mutex[i]);
 	printer("die", i, 0);
 	return (i);
 }

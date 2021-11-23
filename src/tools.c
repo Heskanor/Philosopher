@@ -6,7 +6,7 @@
 /*   By: ashite <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/08 15:06:38 by ashite            #+#    #+#             */
-/*   Updated: 2021/10/08 15:06:41 by ashite           ###   ########.fr       */
+/*   Updated: 2021/10/08 19:07:58 by ashite           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,14 +78,19 @@ int	ft_atoi(const char *str)
 void	mutex_constractor(pthread_mutex_t *mutex)
 {
 	int	i;
-	int	forks;
 
 	i = 0;
-	forks = g_ph.n_philo;
 	pthread_mutex_init(&g_ph.print_mutex, NULL);
-	while (i < forks)
+	pthread_mutex_init(&g_ph.meal_mutex, NULL);
+	while (i < g_ph.n_philo)
 	{
 		pthread_mutex_init(&mutex[i], NULL);
+		i++;
+	}
+	i = 0;
+	while (i < g_ph.n_philo)
+	{
+		pthread_mutex_init(&g_ph.eat_mutex[i], NULL);
 		i++;
 	}
 }
@@ -102,11 +107,10 @@ int	initializer(char **inputs, int m)
 		g_ph.n_meals = ft_atoi(inputs[5]);
 	if (inputs_checker(inputs, 1))
 		return (1);
-	if (g_ph.n_philo == 1)
-		g_ph.forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo + 1);
-	else
-		g_ph.forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo);
+	g_ph.forks = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo);
+	g_ph.eat_mutex = malloc(sizeof(pthread_mutex_t) * g_ph.n_philo);
 	g_ph.ph_meals = malloc(sizeof(int) * g_ph.n_philo);
+	g_ph.philos = malloc(sizeof(int) * g_ph.n_philo);
 	g_ph.before = malloc(sizeof(struct timeval) * g_ph.n_philo);
 	mutex_constractor(g_ph.forks);
 	return (0);

@@ -29,25 +29,28 @@ typedef struct ph_s{
 	struct timeval		*before;
 	int					hunger;
 	int					*ph_meals;
+	int					*philos;
 	pthread_mutex_t		*forks;
+	pthread_mutex_t		meal_mutex;
 	pthread_mutex_t		print_mutex;
+	pthread_mutex_t		*eat_mutex;
 }						t_ph;
 
 t_ph			g_ph;
 
-int				is_degit(char *s);
-int				inputs_checker(char **inputs, int c);
-int				ft_atoi(const char *str);
+void			printer(char *str, int index, unsigned int sleeper);
 void			mutex_constractor(pthread_mutex_t *mutex);
+int				inputs_checker(char **inputs, int c);
+int				death_checker(pthread_t *th, int i);
 int				initializer(char **inputs, int m);
 unsigned int	time_diff(struct timeval x);
-unsigned int	time_now(void);
+int				ft_atoi(const char *str);
 void			mysleep(unsigned int t);
-void			printer(char *str, int index, unsigned int sleeper);
-void			*routine(void *arg);
-int				death_checker(pthread_t *th, int i);
 int				breaker(pthread_t *th);
+void			*routine(void *arg);
+int				is_degit(char *s);
 int				ft_thread(void);
+unsigned int	time_now(void);
 void			freeta(void);
 
 #endif
